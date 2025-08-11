@@ -1,0 +1,60 @@
+use std::fs::File;
+use std::io::{self, BufRead, Write};
+
+fn secure_function() {
+    // 1. Safe input handling (prevents buffer overflow)
+    let mut username = String::new();
+    print!("Enter your username: ");
+    io::stdout().flush().unwrap();
+    io::stdin().read_line(&mut username).expect("Failed to read line");
+    println!("Hello, {}", username.trim());
+
+    // 2. Always initialized variable
+    let age: i32 = 0;
+    if age > 18 {
+        println!("Access granted");
+    }
+
+    // 3. No use-after-free (ownership system)
+    let number = Box::new(42);
+    println!("Number: {}", number); // Automatically freed
+
+    // 4. Null-safe pointer using Option
+    let maybe_value: Option<i32> = None;
+    match maybe_value {
+        Some(val) => println!("Value: {}", val),
+        None => println!("Null pointer handled safely"),
+    }
+
+    // 5. No memory leaks (Vec handles memory automatically)
+    let _data = vec![0; 100]; // Automatically freed
+
+    // 6. Input validation
+    let mut input = String::new();
+    print!("Enter your age: ");
+    io::stdout().flush().unwrap();
+    io::stdin().read_line(&mut input).expect("Failed to read line");
+    let parsed_age: Result<i32, _> = input.trim().parse();
+    match parsed_age {
+        Ok(n) if n >= 0 => println!("You entered: {}", n),
+        _ => println!("Invalid input."),
+    }
+
+    // 7. Safe file reading
+    match File::open("data.txt") {
+        Ok(file) => {
+            let reader = io::BufReader::new(file);
+            for line in reader.lines() {
+                if let Ok(l) = line {
+                    println!("File read: {}", l);
+                }
+            }
+        }
+        Err(e) => println!("Error opening file: {}", e),
+    }
+}
+
+fn main() {
+    secure_function();
+}
+
